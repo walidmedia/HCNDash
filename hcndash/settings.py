@@ -119,6 +119,14 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 
+# Authentication
+# https://docs.djangoproject.com/en/6.1/topics/auth/default/
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'archive:dashboard'
+LOGOUT_REDIRECT_URL = 'login'
+
+
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
