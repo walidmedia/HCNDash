@@ -5,8 +5,36 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h3 mb-0">Datasets</h1>
+    <div>
+        <a href="{% url 'archive:dataset_upload' %}" class="btn btn-primary">Upload file</a>
+        <a href="{% url 'archive:dataset_manual_new' %}" class="btn btn-outline-primary">Add manually</a>
+    </div>
 </div>
-<p class="text-muted">
-    No datasets yet. Upload and manual-entry tools will appear here once the archive models are in place.
-</p>
+
+{% if datasets %}
+<div class="table-responsive">
+<table class="table table-striped table-hover align-middle">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Created</th>
+            <th>Rows</th>
+            <th>Columns</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for dataset in datasets %}
+        <tr>
+            <td><a href="{% url 'archive:dataset_detail' dataset.pk %}">{{ dataset.name }}</a></td>
+            <td>{{ dataset.created_at|date:"Y-m-d H:i" }}</td>
+            <td>{{ dataset.row_count }}</td>
+            <td class="text-muted">{{ dataset.columns|join:", " }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% else %}
+<p class="text-muted">No datasets yet. Upload a file or add one manually to get started.</p>
+{% endif %}
 {% endblock %}

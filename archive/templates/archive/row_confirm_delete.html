@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load archive_extras %}
+
+{% block title %}Delete row{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">Delete row?</h1>
+<p>This will permanently delete this row from <strong>{{ dataset.name }}</strong>. This cannot be undone.</p>
+<dl class="row">
+    {% for col in dataset.columns %}
+    <dt class="col-sm-3">{{ col }}</dt>
+    <dd class="col-sm-9">{{ row.data|get_item:col }}</dd>
+    {% endfor %}
+</dl>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Delete row</button>
+    <a href="{% url 'archive:dataset_detail' dataset.pk %}" class="btn btn-link">Cancel</a>
+</form>
+{% endblock %}

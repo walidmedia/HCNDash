@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}New dataset{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">Add a dataset manually</h1>
+<form method="post" novalidate>
+    {% csrf_token %}
+    <div class="mb-3">
+        <label class="form-label" for="{{ form.name.id_for_label }}">Dataset name</label>
+        {{ form.name }}
+        {% for error in form.name.errors %}
+            <div class="text-danger small mt-1">{{ error }}</div>
+        {% endfor %}
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="{{ form.columns.id_for_label }}">Columns</label>
+        {{ form.columns }}
+        <div class="form-text">{{ form.columns.help_text }}</div>
+        {% for error in form.columns.errors %}
+            <div class="text-danger small mt-1">{{ error }}</div>
+        {% endfor %}
+    </div>
+    <button type="submit" class="btn btn-primary">Create dataset</button>
+    <a href="{% url 'archive:dashboard' %}" class="btn btn-link">Cancel</a>
+</form>
+{% endblock %}
