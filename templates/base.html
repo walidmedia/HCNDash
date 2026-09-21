@@ -9,9 +9,11 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
     <div class="container">
-        <a class="navbar-brand" href="{% if user.is_authenticated %}{% url 'archive:dashboard' %}{% else %}{% url 'login' %}{% endif %}">HCN Dash</a>
+        <a class="navbar-brand" href="{% if user.is_authenticated %}{% url 'spe_report:period_list' %}{% else %}{% url 'login' %}{% endif %}">HCN Dash</a>
         {% if user.is_authenticated %}
             <div class="d-flex align-items-center">
+                <a href="{% url 'spe_report:period_list' %}" class="nav-link text-light me-3 d-inline">Rapport SPE</a>
+                <a href="{% url 'archive:dashboard' %}" class="nav-link text-light me-3 d-inline">Archive</a>
                 <span class="navbar-text text-light me-3">{{ user.username }}</span>
                 <form method="post" action="{% url 'logout' %}" class="m-0">
                     {% csrf_token %}

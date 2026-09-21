@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}{{ mois.libelle }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h3 mb-0">{{ mois.libelle }}</h1>
+        <p class="text-muted mb-0">
+            {% if periode.statut == "soumis" %}
+                <span class="badge bg-success">Soumis</span> le {{ periode.soumis_at|date:"Y-m-d H:i" }} par {{ periode.soumis_par }}
+            {% else %}
+                <span class="badge bg-secondary">Brouillon</span>
+            {% endif %}
+        </p>
+    </div>
+    <div>
+        <a href="{% url 'spe_report:period_report' mois.id %}" class="btn btn-outline-secondary">Voir le rapport</a>
+        {% if periode.statut == "soumis" %}
+            {% if can_reopen %}
+            <form method="post" action="{% url 'spe_report:period_reopen' mois.id %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning">Rouvrir</button>
+            </form>
+            {% endif %}
+        {% else %}
+            <form method="post" action="{% url 'spe_report:period_submit' mois.id %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success">Soumettre</button>
+            </form>
+        {% endif %}
+        <a href="{% url 'spe_report:period_list' %}" class="btn btn-outline-secondary">Retour</a>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 g-3">
+    {% for row in rapport_rows %}
+    <div class="col">
+        <a class="text-decoration-none" href="{% url 'spe_report:period_section' mois.id row.rapport.code %}">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h6 card-title">{{ row.rapport.libelle }}</h2>
+                    <p class="card-text text-muted mb-0">{{ row.filled }} / {{ row.total }} lignes saisies</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+    <div class="col">
+        <a class="text-decoration-none" href="{% url 'spe_report:period_emploi' mois.id %}">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h6 card-title">Emploi</h2>
+                    <p class="card-text text-muted mb-0">{{ emploi_filled }} / {{ emploi_total }} catégories saisies</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col">
+        <a class="text-decoration-none" href="{% url 'spe_report:period_investissements' mois.id %}">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h6 card-title">Investissements</h2>
+                    <p class="card-text text-muted mb-0">{{ invest_filled }} / {{ invest_total }} structures saisies</p>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}

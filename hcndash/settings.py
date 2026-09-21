@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'archive',
+    'spe_report',
 ]
 
 MIDDLEWARE = [

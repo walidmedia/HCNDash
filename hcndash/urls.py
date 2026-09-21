@@ -26,5 +26,6 @@ urlpatterns = [
     path('accounts/login/', auth_views.LoginView.as_view(form_class=LoginForm), name='login'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('archive/', include('archive.urls')),
-    path('', RedirectView.as_view(pattern_name='archive:dashboard', permanent=False)),
+    path('reports/', include('spe_report.urls')),
+    path('', RedirectView.as_view(pattern_name='spe_report:period_list', permanent=False)),
 ]

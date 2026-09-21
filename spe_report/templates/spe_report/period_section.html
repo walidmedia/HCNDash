@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}{{ rapport.libelle }} — {{ mois.libelle }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h4 mb-0">{{ rapport.libelle }}</h1>
+        <p class="text-muted mb-0">{{ mois.libelle }}</p>
+    </div>
+    <a href="{% url 'spe_report:period_detail' mois.id %}" class="btn btn-outline-secondary">Retour à la période</a>
+</div>
+
+{% if periode.est_verrouillee %}
+<div class="alert alert-warning">Cette période est soumise et verrouillée en lecture seule.</div>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    {% for section in sections %}
+    <h2 class="h6 text-uppercase text-muted mt-4">{{ section.master_entite.libelle }}</h2>
+    <div class="table-responsive mb-3">
+    <table class="table table-sm table-bordered align-middle">
+        <thead class="table-light">
+            <tr>
+                <th style="min-width: 220px;">Ligne</th>
+                <th>Unité</th>
+                {% if rapport.utilise_previsionnel %}<th>Prévision</th>{% endif %}
+                <th>Réalisation</th>
+                <th>Réalisation N-1</th>
+                {% if rapport.utilise_previsionnel %}<th>Cumul Prévision</th>{% endif %}
+                <th>Cumul Réalisation</th>
+                <th>Cumul Réalisation N-1</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in section.rows %}
+            <tr class="{% if row.is_total %}table-secondary fw-semibold{% endif %}">
+                <td>
+                    {% if row.type_participation %}
+                        <span class="ps-3 text-muted">↳ {{ row.type_participation }}</span>
+                    {% elif row.is_total %}
+                        {{ row.ligne }} — Total
+                    {% else %}
+                        {{ row.ligne }}
+                    {% endif %}
+                </td>
+                <td>{{ row.unite|default:"" }}</td>
+                {% if row.is_total %}
+                    {% if rapport.utilise_previsionnel %}<td id="total-prev-{{ row.ligne.id }}">{{ row.current.valeur_previsionnel|default:"—" }}</td>{% endif %}
+                    <td id="total-real-{{ row.ligne.id }}">{{ row.current.valeur_realisation|default:"—" }}</td>
+                    <td>{{ row.current.valeur_realisation_n1|default:"—" }}</td>
+                    {% if rapport.utilise_previsionnel %}<td>{{ row.current.valeur_previsionnel_cumul|default:"—" }}</td>{% endif %}
+                    <td>{{ row.current.valeur_realisation_cumul|default:"—" }}</td>
+                    <td>{{ row.current.valeur_realisation_cumul_n1|default:"—" }}</td>
+                {% else %}
+                    {% if rapport.utilise_previsionnel %}
+                    <td>{{ row.fields.prev }}
+                        {% if row.has_breakdown %}<span class="d-none js-sum-input" data-field="prev" data-ligne="{{ row.ligne.id }}"></span>{% endif %}
+                    </td>
+                    {% endif %}
+                    <td>{{ row.fields.real }}</td>
+                    <td>{{ row.fields.realn1 }}</td>
+                    {% if rapport.utilise_previsionnel %}<td>{{ row.fields.cumulprev }}</td>{% endif %}
+                    <td>{{ row.fields.cumulreal }}</td>
+                    <td>{{ row.fields.cumulrealn1 }}</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% endfor %}
+
+    {% if not periode.est_verrouillee %}
+    <button type="submit" class="btn btn-primary">Enregistrer la section</button>
+    {% endif %}
+</form>
+
+<script>
+// Live-updates the read-only "Total" row while the user types into a
+// TypeParticipation breakdown row for the same LigneMesure. The saved
+// server-side total (computed in the view) is the source of truth; this is
+// only a preview.
+(function () {
+    function sumFor(ligneId, field) {
+        var inputs = document.querySelectorAll('input[name^="m_"][name$="_' + field + '"]');
+        var total = 0;
+        var any = false;
+        inputs.forEach(function (input) {
+            var match = input.name.match(/^m_(\d+)_(\d+)_(\w+)$/);
+            if (!match || match[1] !== String(ligneId) || match[3] !== field) return;
+            if (input.value !== "") { total += parseFloat(input.value) || 0; any = true; }
+        });
+        var target = document.getElementById('total-' + field + '-' + ligneId);
+        if (target) target.textContent = any ? total : "—";
+    }
+
+    var seen = new Set();
+    document.querySelectorAll('.js-sum-input').forEach(function (marker) {
+        var ligneId = marker.getAttribute('data-ligne');
+        if (seen.has(ligneId)) return;
+        seen.add(ligneId);
+        document.querySelectorAll('input[name^="m_"]').forEach(function (input) {
+            var match = input.name.match(/^m_(\d+)_(\d+)_(prev|real)$/);
+            if (match && match[1] === String(ligneId)) {
+                input.addEventListener('input', function () { sumFor(ligneId, match[3]); });
+            }
+        });
+    });
+})();
+</script>
+{% endblock %}

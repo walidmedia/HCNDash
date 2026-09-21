@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Rapport — {{ mois.libelle }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Rapport SPE — {{ mois.libelle }}</h1>
+    <a href="{% url 'spe_report:period_detail' mois.id %}" class="btn btn-outline-secondary">Retour à la période</a>
+</div>
+
+{% for section in sections %}
+<h2 class="h6 text-uppercase text-muted mt-4">{{ section.rapport.libelle }}</h2>
+<div class="table-responsive mb-3">
+<table class="table table-sm table-bordered align-middle">
+    <thead class="table-light">
+        <tr>
+            <th>Ligne</th>
+            <th>Unité</th>
+            <th>Prévision</th>
+            <th>Réalisation</th>
+            <th>Taux (mois)</th>
+            <th>Évolution (mois)</th>
+            <th>Cumul Prévision</th>
+            <th>Cumul Réalisation</th>
+            <th>Taux (cumul)</th>
+            <th>Évolution (cumul)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in section.rows %}
+        <tr>
+            <td>{{ row.ligne }}</td>
+            <td>{{ row.ligne.unite_mesure|default:"" }}</td>
+            <td>{{ row.mesure.valeur_previsionnel|default:"—" }}</td>
+            <td>{{ row.mesure.valeur_realisation|default:"—" }}</td>
+            <td>{% if row.taux_mois %}{{ row.taux_mois|floatformat:2 }}{% else %}—{% endif %}</td>
+            <td>{% if row.evolution_mois %}{{ row.evolution_mois|floatformat:2 }}{% else %}—{% endif %}</td>
+            <td>{{ row.mesure.valeur_previsionnel_cumul|default:"—" }}</td>
+            <td>{{ row.mesure.valeur_realisation_cumul|default:"—" }}</td>
+            <td>{% if row.taux_cumul %}{{ row.taux_cumul|floatformat:2 }}{% else %}—{% endif %}</td>
+            <td>{% if row.evolution_cumul %}{{ row.evolution_cumul|floatformat:2 }}{% else %}—{% endif %}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endfor %}
+
+<h2 class="h6 text-uppercase text-muted mt-4">Emploi</h2>
+<div class="table-responsive mb-3">
+<table class="table table-sm table-bordered align-middle">
+    <thead class="table-light"><tr><th>Catégorie</th><th>Situation</th><th>N-1</th><th>Évolution</th></tr></thead>
+    <tbody>
+        {% for row in emploi_rows %}
+        <tr>
+            <td>{{ row.categorie.libelle }}</td>
+            <td>{{ row.effectif.valeur|default:"—" }}</td>
+            <td>{{ row.effectif.valeur_n1|default:"—" }}</td>
+            <td>{% if row.evolution %}{{ row.evolution|floatformat:2 }}{% else %}—{% endif %}</td>
+        </tr>
+        {% if row.dont %}
+        <tr class="table-light">
+            <td class="ps-4 text-muted">{{ row.categorie.dont_libelle }}</td>
+            <td>{{ row.dont.valeur|default:"—" }}</td>
+            <td>{{ row.dont.valeur_n1|default:"—" }}</td>
+            <td></td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+<h2 class="h6 text-uppercase text-muted mt-4">Investissements</h2>
+{% for section in invest_sections %}
+<div class="table-responsive mb-3">
+<table class="table table-sm table-bordered align-middle">
+    <thead class="table-light"><tr><th colspan="4">{{ section.structure.libelle }}</th></tr></thead>
+    <tbody>
+        {% for row in section.rows %}
+        <tr>
+            <td>{{ row.action.libelle }}</td>
+            <td>{{ row.montant.valeur_realisation|default:"—" }}</td>
+            <td>{{ row.montant.valeur_objectif_revise|default:"—" }}</td>
+            <td>{% if row.taux %}{{ row.taux|floatformat:2 }}{% else %}—{% endif %}</td>
+        </tr>
+        {% endfor %}
+        <tr class="table-secondary fw-semibold">
+            <td>Total</td>
+            <td>{{ section.total.valeur_realisation|default:"—" }}</td>
+            <td>{{ section.total.valeur_objectif_revise|default:"—" }}</td>
+            <td>{% if section.taux_total %}{{ section.taux_total|floatformat:2 }}{% else %}—{% endif %}</td>
+        </tr>
+    </tbody>
+</table>
+</div>
+{% endfor %}
+{% endblock %}
