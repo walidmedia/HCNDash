@@ -1,9 +1,12 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+
+from accounts.decorators import admin_required
+from hcndash.exports import export_csv, export_xlsx
 
 from .audit import record_change, snapshot_before
 from .forms import (
@@ -127,7 +130,7 @@ def period_detail(request, mois_id):
             "emploi_total": emploi_total,
             "invest_filled": invest_filled,
             "invest_total": invest_total,
-            "can_reopen": request.user.has_perm("spe_report.reopen_periode"),
+            "can_manage": request.user.profile.is_admin,
         },
     )
 
@@ -145,8 +148,7 @@ def period_submit(request, mois_id):
     return redirect("spe_report:period_detail", mois_id=mois.id)
 
 
-@login_required
-@permission_required("spe_report.reopen_periode", raise_exception=True)
+@admin_required
 def period_reopen(request, mois_id):
     mois = get_object_or_404(Mois, pk=mois_id)
     periode = get_object_or_404(PeriodeRapport, mois=mois)
@@ -155,6 +157,17 @@ def period_reopen(request, mois_id):
         periode.save()
         messages.warning(request, f"Période {mois} rouverte pour modification.")
     return redirect("spe_report:period_detail", mois_id=mois.id)
+
+
+@admin_required
+def period_delete(request, mois_id):
+    mois = get_object_or_404(Mois, pk=mois_id)
+    if request.method == "POST":
+        libelle = mois.libelle
+        mois.delete()
+        messages.success(request, f"Période {libelle} supprimée.")
+        return redirect("spe_report:period_list")
+    return render(request, "spe_report/period_confirm_delete.html", {"mois": mois})
 
 
 def _save_mesure_row(mois, row, cleaned_data, user):
@@ -396,9 +409,8 @@ def _evolution(numerator, denominator):
     return ratio - 1 if ratio is not None else None
 
 
-@login_required
-def period_report(request, mois_id):
-    mois = get_object_or_404(Mois, pk=mois_id)
+def build_period_report_data(mois):
+    """Shared by the HTML report view and the xlsx/csv export."""
     sections = []
     for rapport in Rapport.objects.order_by("ordre"):
         lignes = (
@@ -474,8 +486,76 @@ def period_report(request, mois_id):
             }
         )
 
-    return render(
-        request,
-        "spe_report/period_report.html",
-        {"mois": mois, "sections": sections, "emploi_rows": emploi_rows, "invest_sections": invest_sections},
-    )
+    return {"sections": sections, "emploi_rows": emploi_rows, "invest_sections": invest_sections}
+
+
+@login_required
+def period_report(request, mois_id):
+    mois = get_object_or_404(Mois, pk=mois_id)
+    data = build_period_report_data(mois)
+    return render(request, "spe_report/period_report.html", {"mois": mois, **data})
+
+
+_REPORT_XLSX_COLUMNS = [
+    "Ligne", "Unité", "Prévision", "Réalisation", "Réalisation N-1",
+    "Cumul Prévision", "Cumul Réalisation", "Cumul Réalisation N-1",
+]
+
+
+@login_required
+def period_export(request, mois_id, fmt):
+    mois = get_object_or_404(Mois, pk=mois_id)
+    data = build_period_report_data(mois)
+    filename = f"spe_{mois.annee}_{mois.numero:02d}"
+
+    sheets = []
+    for section in data["sections"]:
+        rows = []
+        for row in section["rows"]:
+            m = row["mesure"]
+            rows.append([
+                str(row["ligne"]),
+                str(row["ligne"].unite_mesure or ""),
+                getattr(m, "valeur_previsionnel", None),
+                getattr(m, "valeur_realisation", None),
+                getattr(m, "valeur_realisation_n1", None),
+                getattr(m, "valeur_previsionnel_cumul", None),
+                getattr(m, "valeur_realisation_cumul", None),
+                getattr(m, "valeur_realisation_cumul_n1", None),
+            ])
+        sheets.append((section["rapport"].libelle, _REPORT_XLSX_COLUMNS, rows))
+
+    emploi_rows = [
+        [row["categorie"].libelle, getattr(row["effectif"], "valeur", None), getattr(row["effectif"], "valeur_n1", None)]
+        for row in data["emploi_rows"]
+    ]
+    sheets.append(("Emploi", ["Catégorie", "Situation", "Situation N-1"], emploi_rows))
+
+    invest_rows = []
+    for section in data["invest_sections"]:
+        for row in section["rows"]:
+            m = row["montant"]
+            invest_rows.append([
+                section["structure"].libelle,
+                row["action"].libelle,
+                getattr(m, "valeur_realisation", None),
+                getattr(m, "valeur_objectif_revise", None),
+            ])
+    sheets.append(("Investissements", ["Structure", "Action", "Réalisation", "Objectif révisé"], invest_rows))
+
+    if fmt == "csv":
+        # Emploi/Investissements rows have different shapes than the Mesure
+        # rows, so a single flat CSV can't reuse the xlsx sheets' specific
+        # column labels honestly — use generic "Valeur N" headers instead of
+        # mislabeling e.g. an Investissements "Objectif révisé" as "Cumul
+        # Prévision". The multi-sheet .xlsx export is the properly labeled one.
+        max_width = max(len(columns) for _, columns, _ in sheets)
+        flat_columns = ["Section"] + [f"Valeur {i}" for i in range(1, max_width + 1)]
+        flat_rows = []
+        for name, columns, rows in sheets:
+            for row in rows:
+                padded = list(row) + [""] * (max_width - len(row))
+                flat_rows.append([name] + padded)
+        return export_csv(filename, flat_columns, flat_rows)
+
+    return export_xlsx(filename, sheets)

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}{{ periode.libelle }}{% endblock %}
+
+{% block content %}
+<div class="sona-page-header d-flex justify-content-between align-items-start flex-wrap gap-3">
+    <div>
+        <div class="sona-eyebrow">Archive</div>
+        <h1 class="h3 mb-2">{{ periode.libelle }}</h1>
+        {% if periode.statut == "soumis" %}
+            <span class="sona-badge sona-badge-submitted">Soumis le {{ periode.soumis_at|date:"d/m/Y H:i" }} par {{ periode.soumis_par }}</span>
+        {% else %}
+            <span class="sona-badge sona-badge-draft">Brouillon</span>
+        {% endif %}
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        {% if not periode.est_verrouillee %}
+            <a href="{% url 'archive:dataset_upload' periode.id %}" class="btn btn-primary">Importer un fichier</a>
+            <a href="{% url 'archive:dataset_manual_new' periode.id %}" class="btn btn-outline-primary">Ajouter manuellement</a>
+        {% endif %}
+        <div class="btn-group">
+            <a href="{% url 'archive:period_export' periode.id 'xlsx' %}" class="btn btn-outline-secondary">Exporter .xlsx</a>
+            <a href="{% url 'archive:period_export' periode.id 'csv' %}" class="btn btn-outline-secondary">.csv</a>
+        </div>
+        {% if periode.statut == "soumis" %}
+            {% if can_manage %}
+            <form method="post" action="{% url 'archive:period_reopen' periode.id %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning">Rouvrir</button>
+            </form>
+            {% endif %}
+        {% else %}
+            <form method="post" action="{% url 'archive:period_submit' periode.id %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success">Soumettre</button>
+            </form>
+        {% endif %}
+        {% if can_manage %}
+        <a href="{% url 'archive:period_delete' periode.id %}" class="btn btn-outline-danger">Supprimer</a>
+        {% endif %}
+        <a href="{% url 'archive:period_list' %}" class="btn btn-outline-secondary">Retour</a>
+    </div>
+</div>
+
+{% if periode.est_verrouillee %}
+<div class="alert alert-warning">Cette période est soumise et verrouillée en lecture seule.</div>
+{% endif %}
+
+{% if datasets %}
+<div class="sona-table-wrap">
+<table class="table table-hover align-middle mb-0">
+    <thead>
+        <tr>
+            <th>Nom</th>
+            <th>Créé le</th>
+            <th>Lignes</th>
+            <th>Colonnes</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for dataset in datasets %}
+        <tr>
+            <td><a href="{% url 'archive:dataset_detail' dataset.pk %}" class="fw-semibold text-decoration-none">{{ dataset.name }}</a></td>
+            <td class="text-muted">{{ dataset.created_at|date:"Y-m-d H:i" }}</td>
+            <td>{{ dataset.row_count }}</td>
+            <td class="text-muted">{{ dataset.columns|join:", " }}</td>
+            <td class="text-end text-nowrap">
+                <a href="{% url 'archive:dataset_export' dataset.pk 'xlsx' %}" class="btn btn-sm btn-outline-secondary">Exporter</a>
+                {% if can_manage %}
+                <a href="{% url 'archive:dataset_delete' dataset.pk %}" class="btn btn-sm btn-outline-danger">Supprimer</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% else %}
+<div class="sona-card">
+    <div class="sona-empty">Aucun jeu de données dans cette période pour l'instant.</div>
+</div>
+{% endif %}
+{% endblock %}

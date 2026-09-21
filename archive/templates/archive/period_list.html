@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Archive{% endblock %}
+
+{% block content %}
+<div class="sona-page-header">
+    <div class="sona-eyebrow">Archive</div>
+    <h1 class="h3 mb-0">Périodes</h1>
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 g-3 mb-4">
+    <div class="col">
+        <div class="sona-card sona-stat-card sona-card-body">
+            <div class="sona-stat-value">{{ total_count }}</div>
+            <div class="sona-stat-label">Périodes créées</div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="sona-card sona-stat-card sona-card-body">
+            <div class="sona-stat-value">{{ brouillon_count }}</div>
+            <div class="sona-stat-label">En brouillon</div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="sona-card sona-stat-card sona-card-body">
+            <div class="sona-stat-value">{{ soumis_count }}</div>
+            <div class="sona-stat-label">Soumises</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="sona-card">
+            <div class="sona-table-wrap" style="border:none;">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Période</th>
+                            <th>Statut</th>
+                            <th>Jeux de données</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for periode in periodes %}
+                        <tr>
+                            <td class="fw-semibold">{{ periode.libelle }}</td>
+                            <td>
+                                {% if periode.statut == "soumis" %}
+                                    <span class="sona-badge sona-badge-submitted">Soumis</span>
+                                {% else %}
+                                    <span class="sona-badge sona-badge-draft">Brouillon</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted">{{ periode.dataset_count }}</td>
+                            <td class="text-end">
+                                <a href="{% url 'archive:period_detail' periode.id %}" class="btn btn-sm btn-outline-primary">Ouvrir</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="sona-empty">Aucune période créée pour l'instant.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="sona-card sona-card-body">
+            <div class="sona-icon-tile">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+            </div>
+            <h2 class="h6">Nouvelle période</h2>
+            <p class="text-muted small">Créer une nouvelle période d'archivage.</p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">{{ form.numero.label }}</label>
+                    {{ form.numero }}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">{{ form.annee.label }}</label>
+                    {{ form.annee }}
+                    {% for error in form.annee.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                </div>
+                {% for error in form.non_field_errors %}<div class="text-danger small mb-2">{{ error }}</div>{% endfor %}
+                <button type="submit" class="btn btn-primary w-100">Créer la période</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -3,13 +3,19 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div class="sona-page-header">
-    <div class="sona-eyebrow">{{ dataset.name }}</div>
-    <h1 class="h3 mb-0">{{ title }}</h1>
+<div class="sona-page-header d-flex justify-content-between align-items-center">
+    <div>
+        <div class="sona-eyebrow">{{ dataset.name }}</div>
+        <h1 class="h3 mb-0">{{ title }}</h1>
+    </div>
+    <span id="autosave-status" class="text-muted small"></span>
 </div>
 
 <div class="sona-card sona-card-body" style="max-width: 560px;">
-    <form method="post" novalidate>
+    <form method="post" novalidate id="row-form"
+          data-add-url="{% url 'archive:row_add' dataset.pk %}"
+          data-edit-url-base="{% url 'archive:dataset_detail' dataset.pk %}rows"
+          {% if row %}data-row-id="{{ row.pk }}"{% endif %}>
         {% csrf_token %}
         {% for field in form %}
         <div class="mb-3">
@@ -26,4 +32,59 @@
         </div>
     </form>
 </div>
+
+<script>
+// Progressive-enhancement autosave: debounced background save while typing.
+// The "Enregistrer" button still does a normal full submit + redirect, so
+// this degrades gracefully if JS/fetch fails for any reason.
+(function () {
+    var form = document.getElementById("row-form");
+    var status = document.getElementById("autosave-status");
+    var rowId = form.dataset.rowId || null;
+    var timer = null;
+
+    function csrfToken() {
+        return form.querySelector('[name=csrfmiddlewaretoken]').value;
+    }
+
+    function autosaveUrl() {
+        return rowId ? form.dataset.editUrlBase + "/" + rowId + "/edit/" : form.dataset.addUrl;
+    }
+
+    function autosave() {
+        status.textContent = "Enregistrement...";
+        fetch(autosaveUrl(), {
+            method: "POST",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": csrfToken(),
+            },
+            body: new FormData(form),
+        })
+            .then(function (resp) {
+                if (resp.status === 409) {
+                    status.textContent = "Période verrouillée — non enregistré.";
+                    return;
+                }
+                return resp.json().then(function (data) {
+                    if (data.status === "ok") {
+                        if (data.row_id) rowId = data.row_id;
+                        status.textContent = "Brouillon enregistré ✓";
+                    } else {
+                        status.textContent = "";
+                    }
+                });
+            })
+            .catch(function () { status.textContent = ""; });
+    }
+
+    form.querySelectorAll("input, textarea, select").forEach(function (field) {
+        field.addEventListener("input", function () {
+            status.textContent = "";
+            clearTimeout(timer);
+            timer = setTimeout(autosave, 1200);
+        });
+    });
+})();
+</script>
 {% endblock %}

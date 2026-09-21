@@ -1,6 +1,30 @@
 from django import forms
 
+from hcndash.french_dates import MOIS_LIBELLES
+
+from .models import Periode
+
 MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10 MB
+
+
+class NewPeriodForm(forms.Form):
+    numero = forms.TypedChoiceField(
+        choices=[(i, MOIS_LIBELLES[i - 1]) for i in range(1, 13)],
+        coerce=int,
+        widget=forms.Select(attrs={"class": "form-select"}),
+        label="Mois",
+    )
+    annee = forms.IntegerField(
+        min_value=2000, max_value=2100, widget=forms.NumberInput(attrs={"class": "form-control"}), label="Année"
+    )
+
+    def clean(self):
+        cleaned = super().clean()
+        numero = cleaned.get("numero")
+        annee = cleaned.get("annee")
+        if numero and annee and Periode.objects.filter(numero=numero, annee=annee).exists():
+            raise forms.ValidationError("Cette période existe déjà.")
+        return cleaned
 
 
 class DatasetUploadForm(forms.Form):

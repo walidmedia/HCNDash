@@ -15,8 +15,12 @@
     </div>
     <div class="d-flex gap-2 flex-wrap">
         <a href="{% url 'spe_report:period_report' mois.id %}" class="btn btn-outline-primary">Voir le rapport</a>
+        <div class="btn-group">
+            <a href="{% url 'spe_report:period_export' mois.id 'xlsx' %}" class="btn btn-outline-secondary">Exporter .xlsx</a>
+            <a href="{% url 'spe_report:period_export' mois.id 'csv' %}" class="btn btn-outline-secondary">.csv</a>
+        </div>
         {% if periode.statut == "soumis" %}
-            {% if can_reopen %}
+            {% if can_manage %}
             <form method="post" action="{% url 'spe_report:period_reopen' mois.id %}" class="d-inline">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-warning">Rouvrir</button>
@@ -27,6 +31,9 @@
                 {% csrf_token %}
                 <button type="submit" class="btn btn-success">Soumettre</button>
             </form>
+        {% endif %}
+        {% if can_manage %}
+        <a href="{% url 'spe_report:period_delete' mois.id %}" class="btn btn-outline-danger">Supprimer</a>
         {% endif %}
         <a href="{% url 'spe_report:period_list' %}" class="btn btn-outline-secondary">Retour</a>
     </div>

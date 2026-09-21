@@ -122,7 +122,7 @@ class PeriodEntryTests(TestCase):
         plain = Mesure.objects.get(ligne_mesure=self.ligne_plain, mois=self.mois, type_participation=None)
         self.assertEqual(plain.valeur_realisation, 6)  # unchanged, edit was rejected
 
-    def test_reopen_requires_permission(self):
+    def test_reopen_requires_admin_role(self):
         self.client.post(reverse("spe_report:period_submit", args=[self.mois.id]))
 
         resp = self.client.post(reverse("spe_report:period_reopen", args=[self.mois.id]))
@@ -134,6 +134,29 @@ class PeriodEntryTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         periode = PeriodeRapport.objects.get(mois=self.mois)
         self.assertFalse(periode.est_verrouillee)
+
+    def test_delete_requires_admin_role(self):
+        resp = self.client.post(reverse("spe_report:period_delete", args=[self.mois.id]))
+        self.assertEqual(resp.status_code, 403)
+        self.assertTrue(Mois.objects.filter(pk=self.mois.id).exists())
+
+        self.client.logout()
+        self.client.login(username="admin", password="pw")
+        resp = self.client.post(reverse("spe_report:period_delete", args=[self.mois.id]))
+        self.assertEqual(resp.status_code, 302)
+        self.assertFalse(Mois.objects.filter(pk=self.mois.id).exists())
+
+    def test_export_xlsx_and_csv(self):
+        self.client.post(
+            reverse("spe_report:period_section", args=[self.mois.id, self.rapport.code]), self._post_data()
+        )
+        resp = self.client.get(reverse("spe_report:period_export", args=[self.mois.id, "xlsx"]))
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("spreadsheetml", resp["Content-Type"])
+
+        resp = self.client.get(reverse("spe_report:period_export", args=[self.mois.id, "csv"]))
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("text/csv", resp["Content-Type"])
 
     def test_no_changelog_written_when_value_unchanged(self):
         self.client.post(

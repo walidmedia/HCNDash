@@ -24,7 +24,10 @@
         {% if user.is_authenticated %}
             <div class="d-flex align-items-center flex-wrap gap-1 ms-auto">
                 <a href="{% url 'spe_report:period_list' %}" class="sona-nav-link {% if request.resolver_match.app_name == 'spe_report' %}active{% endif %}">Rapport SPE</a>
-                <a href="{% url 'archive:dashboard' %}" class="sona-nav-link {% if request.resolver_match.app_name == 'archive' %}active{% endif %}">Archive</a>
+                <a href="{% url 'archive:period_list' %}" class="sona-nav-link {% if request.resolver_match.app_name == 'archive' %}active{% endif %}">Archive</a>
+                {% if user.profile.is_admin %}
+                <a href="{% url 'accounts:user_list' %}" class="sona-nav-link {% if request.resolver_match.app_name == 'accounts' %}active{% endif %}">Utilisateurs</a>
+                {% endif %}
                 <span class="sona-user-chip ms-2 me-1">
                     <span class="sona-user-avatar">{{ user.username|slice:":2" }}</span>
                     <span class="d-none d-sm-inline">{{ user.username }}</span>

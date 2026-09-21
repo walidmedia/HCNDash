@@ -4,10 +4,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.db.models import Q, UniqueConstraint
 
-MOIS_LIBELLES = [
-    "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
-]
+from hcndash.french_dates import mois_libelle
 
 
 # ---------------------------------------------------------------------------
@@ -28,7 +25,7 @@ class Mois(models.Model):
 
     @property
     def libelle(self):
-        return f"{MOIS_LIBELLES[self.numero - 1]} {self.annee}"
+        return mois_libelle(self.numero, self.annee)
 
     def __str__(self):
         return self.libelle
@@ -375,9 +372,6 @@ class PeriodeRapport(models.Model):
 
     class Meta:
         ordering = ["-mois__annee", "-mois__numero"]
-        permissions = [
-            ("reopen_periode", "Can reopen a submitted period"),
-        ]
 
     @property
     def est_verrouillee(self):

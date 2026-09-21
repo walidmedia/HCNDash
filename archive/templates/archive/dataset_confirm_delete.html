@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Supprimer le jeu de données{% endblock %}
+
+{% block content %}
+<div class="sona-page-header">
+    <div class="sona-eyebrow">Archive</div>
+    <h1 class="h3 mb-0">Supprimer ce jeu de données ?</h1>
+</div>
+
+<div class="sona-card sona-card-body">
+    <p>Cette action supprimera définitivement <strong>{{ dataset.name }}</strong> et toutes ses lignes.
+    Cette action est irréversible.</p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-danger">Supprimer</button>
+            {% if dataset.periode_id %}
+            <a href="{% url 'archive:period_detail' dataset.periode_id %}" class="btn btn-outline-secondary">Annuler</a>
+            {% else %}
+            <a href="{% url 'archive:period_list' %}" class="btn btn-outline-secondary">Annuler</a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+{% endblock %}

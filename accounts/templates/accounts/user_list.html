@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Utilisateurs{% endblock %}
+
+{% block content %}
+<div class="sona-page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+        <div class="sona-eyebrow">Administration</div>
+        <h1 class="h3 mb-0">Utilisateurs</h1>
+    </div>
+    <a href="{% url 'accounts:user_create' %}" class="btn btn-primary">Nouvel utilisateur</a>
+</div>
+
+<div class="sona-table-wrap">
+<table class="table table-hover align-middle mb-0">
+    <thead>
+        <tr>
+            <th>Utilisateur</th>
+            <th>Email</th>
+            <th>Rôle</th>
+            <th>Statut</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for u in users %}
+        <tr>
+            <td class="fw-semibold">{{ u.username }}</td>
+            <td class="text-muted">{{ u.email|default:"—" }}</td>
+            <td>
+                {% if u.profile.is_admin %}
+                    <span class="sona-badge sona-badge-submitted">Administrateur</span>
+                {% else %}
+                    <span class="sona-badge sona-badge-draft">Modérateur</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if u.is_active %}
+                    <span class="text-success">Actif</span>
+                {% else %}
+                    <span class="text-muted">Désactivé</span>
+                {% endif %}
+            </td>
+            <td class="text-end">
+                <a href="{% url 'accounts:user_edit' u.pk %}" class="btn btn-sm btn-outline-secondary">Modifier</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}
