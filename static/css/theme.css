@@ -1,0 +1,485 @@
+/* ==========================================================================
+   HCN Dash — Sonatrach-inspired design system
+   ========================================================================== */
+
+:root {
+  /* Brand: deep energy green + amber accent (flame/hydrocarbon motif) */
+  --sona-green-900: #05231a;
+  --sona-green-800: #0a3d2c;
+  --sona-green-700: #0f5238;
+  --sona-green-600: #157048;
+  --sona-green-500: #1c8f57;
+  --sona-green-400: #2fae70;
+  --sona-green-100: #e3f5eb;
+  --sona-green-50:  #f2faf5;
+
+  --sona-amber-600: #d98a0e;
+  --sona-amber-500: #f2a01c;
+  --sona-amber-100: #fdf0d9;
+
+  --sona-red-600: #b3261e;
+
+  --ink-900: #14201b;
+  --ink-700: #3c4a44;
+  --ink-500: #647169;
+  --ink-300: #a4b0a9;
+
+  --surface: #ffffff;
+  --surface-muted: #f5f8f6;
+  --surface-sunken: #eef3f0;
+  --border-soft: #e1e8e3;
+
+  --radius-lg: 18px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+
+  --shadow-sm: 0 1px 2px rgba(10, 30, 20, 0.06);
+  --shadow-md: 0 6px 20px rgba(10, 30, 20, 0.08);
+  --shadow-lg: 0 16px 40px rgba(10, 30, 20, 0.12);
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--surface-muted);
+  color: var(--ink-900);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink-900);
+}
+
+a {
+  color: var(--sona-green-700);
+}
+a:hover {
+  color: var(--sona-green-800);
+}
+
+.text-muted {
+  color: var(--ink-500) !important;
+}
+
+/* ------------------------------ Navbar ------------------------------ */
+
+.sona-navbar {
+  background: linear-gradient(120deg, var(--sona-green-800) 0%, var(--sona-green-700) 55%, var(--sona-green-600) 100%);
+  box-shadow: 0 2px 16px rgba(5, 35, 26, 0.25);
+  padding-top: .65rem;
+  padding-bottom: .65rem;
+}
+
+.sona-brand {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  text-decoration: none;
+}
+
+.sona-brand-mark {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: radial-gradient(circle at 30% 25%, var(--sona-amber-500), var(--sona-amber-600) 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+}
+
+.sona-brand-mark svg {
+  width: 22px;
+  height: 22px;
+}
+
+.sona-brand-text {
+  line-height: 1.1;
+}
+
+.sona-brand-text .sona-brand-name {
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: .01em;
+}
+
+.sona-brand-text .sona-brand-sub {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.sona-nav-link {
+  color: rgba(255, 255, 255, 0.82) !important;
+  font-weight: 600;
+  font-size: .9rem;
+  padding: .4rem .85rem !important;
+  border-radius: 999px;
+  transition: background-color .15s ease, color .15s ease;
+}
+
+.sona-nav-link:hover {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.sona-nav-link.active {
+  color: var(--sona-green-800) !important;
+  background: var(--sona-amber-500);
+}
+
+.sona-user-chip {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: .85rem;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.sona-user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: .75rem;
+  text-transform: uppercase;
+}
+
+.btn-logout {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #fff;
+}
+.btn-logout:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.6);
+  color: #fff;
+}
+
+/* ------------------------------ Layout ------------------------------ */
+
+.sona-page {
+  padding-top: 2rem;
+  padding-bottom: 3rem;
+}
+
+.sona-page-header {
+  margin-bottom: 1.75rem;
+}
+
+.sona-eyebrow {
+  color: var(--sona-green-600);
+  font-weight: 700;
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin-bottom: .25rem;
+}
+
+/* ------------------------------ Cards ------------------------------ */
+
+.sona-card {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow .18s ease, transform .18s ease;
+}
+
+a.sona-card-link {
+  text-decoration: none;
+  display: block;
+  color: inherit;
+}
+
+a.sona-card-link:hover .sona-card {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  border-color: var(--sona-green-400);
+}
+
+.sona-card-body {
+  padding: 1.35rem 1.5rem;
+}
+
+.sona-stat-card .sona-stat-value {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: var(--sona-green-700);
+  line-height: 1;
+}
+
+.sona-stat-card .sona-stat-label {
+  color: var(--ink-500);
+  font-size: .82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-top: .35rem;
+}
+
+.sona-icon-tile {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  background: var(--sona-green-100);
+  color: var(--sona-green-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: .75rem;
+}
+
+/* ------------------------------ Progress ------------------------------ */
+
+.sona-progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  overflow: hidden;
+  margin-top: .55rem;
+}
+
+.sona-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--sona-green-500), var(--sona-green-400));
+  border-radius: 999px;
+}
+
+.sona-progress-bar.is-complete {
+  background: linear-gradient(90deg, var(--sona-amber-600), var(--sona-amber-500));
+}
+
+/* ------------------------------ Badges ------------------------------ */
+
+.sona-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .3rem .7rem;
+  border-radius: 999px;
+  font-size: .76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+
+.sona-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.sona-badge-draft {
+  background: var(--surface-sunken);
+  color: var(--ink-500);
+}
+
+.sona-badge-submitted {
+  background: var(--sona-green-100);
+  color: var(--sona-green-700);
+}
+
+/* ------------------------------ Buttons ------------------------------ */
+
+.btn {
+  font-weight: 600;
+  border-radius: 10px;
+  padding-inline: 1.1rem;
+}
+
+.btn-sm {
+  border-radius: 8px;
+}
+
+.btn-primary {
+  background: var(--sona-green-600);
+  border-color: var(--sona-green-600);
+}
+.btn-primary:hover, .btn-primary:focus {
+  background: var(--sona-green-700);
+  border-color: var(--sona-green-700);
+}
+
+.btn-outline-primary {
+  color: var(--sona-green-700);
+  border-color: var(--sona-green-600);
+}
+.btn-outline-primary:hover {
+  background: var(--sona-green-600);
+  border-color: var(--sona-green-600);
+}
+
+.btn-outline-secondary {
+  color: var(--ink-700);
+  border-color: var(--border-soft);
+}
+.btn-outline-secondary:hover {
+  background: var(--surface-sunken);
+  color: var(--ink-900);
+  border-color: var(--border-soft);
+}
+
+.btn-success {
+  background: var(--sona-green-600);
+  border-color: var(--sona-green-600);
+}
+.btn-success:hover {
+  background: var(--sona-green-700);
+  border-color: var(--sona-green-700);
+}
+
+.btn-warning {
+  background: var(--sona-amber-500);
+  border-color: var(--sona-amber-500);
+  color: var(--ink-900);
+}
+.btn-warning:hover {
+  background: var(--sona-amber-600);
+  border-color: var(--sona-amber-600);
+  color: var(--ink-900);
+}
+
+/* ------------------------------ Forms ------------------------------ */
+
+.form-control, .form-select {
+  border-radius: 10px;
+  border-color: var(--border-soft);
+  padding: .55rem .8rem;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--sona-green-500);
+  box-shadow: 0 0 0 .2rem var(--sona-green-100);
+}
+
+.form-control-sm {
+  border-radius: 8px;
+}
+
+.form-label {
+  font-weight: 600;
+  font-size: .88rem;
+  color: var(--ink-700);
+}
+
+/* ------------------------------ Tables ------------------------------ */
+
+.sona-table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.sona-table-wrap .table {
+  margin-bottom: 0;
+}
+
+.table > thead {
+  background: var(--surface-sunken);
+}
+
+.table > thead th {
+  font-size: .74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--ink-500);
+  border-bottom: none;
+  padding-top: .8rem;
+  padding-bottom: .8rem;
+}
+
+.table > :not(caption) > * > * {
+  border-bottom-color: var(--border-soft);
+}
+
+.table-hover > tbody > tr:hover > * {
+  background-color: var(--sona-green-50);
+}
+
+.table-secondary, .table-secondary > * {
+  --bs-table-bg: var(--sona-amber-100) !important;
+  background-color: var(--sona-amber-100) !important;
+  color: var(--ink-900);
+}
+
+.sona-section-heading {
+  color: var(--sona-green-700);
+  font-weight: 700;
+  font-size: .82rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  border-bottom: 2px solid var(--sona-green-100);
+  padding-bottom: .4rem;
+}
+
+/* ------------------------------ Alerts ------------------------------ */
+
+.alert {
+  border: none;
+  border-left: 4px solid transparent;
+  border-radius: var(--radius-sm);
+}
+.alert-success { border-left-color: var(--sona-green-500); background: var(--sona-green-50); color: var(--sona-green-800); }
+.alert-warning { border-left-color: var(--sona-amber-500); background: var(--sona-amber-100); color: #6b4a06; }
+.alert-danger  { border-left-color: var(--sona-red-600); background: #fdecea; color: #7a1c17; }
+.alert-info    { border-left-color: var(--ink-300); background: var(--surface-sunken); color: var(--ink-700); }
+
+/* ------------------------------ Login page ------------------------------ */
+
+.sona-auth-shell {
+  min-height: calc(100vh - 90px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sona-auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 2.5rem 2.25rem;
+  border: 1px solid var(--border-soft);
+}
+
+.sona-auth-mark {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: radial-gradient(circle at 30% 25%, var(--sona-amber-500), var(--sona-amber-600) 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+  box-shadow: var(--shadow-md);
+}
+
+.sona-auth-mark svg { width: 30px; height: 30px; }
+
+/* ------------------------------ Misc ------------------------------ */
+
+.sona-empty {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--ink-500);
+}
+
+@media (max-width: 767px) {
+  .sona-page { padding-top: 1.25rem; }
+}

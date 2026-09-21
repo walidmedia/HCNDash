@@ -88,7 +88,19 @@ def period_list(request):
             return redirect("spe_report:period_detail", mois_id=mois.id)
     else:
         form = NewPeriodForm()
-    return render(request, "spe_report/period_list.html", {"periodes": periodes, "form": form})
+
+    soumis_count = periodes.filter(statut=PeriodeRapport.STATUT_SOUMIS).count()
+    return render(
+        request,
+        "spe_report/period_list.html",
+        {
+            "periodes": periodes,
+            "form": form,
+            "total_count": periodes.count(),
+            "soumis_count": soumis_count,
+            "brouillon_count": periodes.count() - soumis_count,
+        },
+    )
 
 
 @login_required

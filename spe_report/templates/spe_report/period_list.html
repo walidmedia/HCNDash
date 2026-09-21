@@ -1,66 +1,92 @@
 {% extends "base.html" %}
 
-{% block title %}Rapport SPE{% endblock %}
+{% block title %}Accueil{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
+<div class="sona-page-header">
+    <div class="sona-eyebrow">Tableau de bord</div>
     <h1 class="h3 mb-0">Rapport SPE — Périodes</h1>
 </div>
 
-<div class="row">
-    <div class="col-md-8">
-        <div class="table-responsive">
-        <table class="table table-striped table-hover align-middle">
-            <thead>
-                <tr>
-                    <th>Période</th>
-                    <th>Statut</th>
-                    <th>Soumis par</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for periode in periodes %}
-                <tr>
-                    <td>{{ periode.mois.libelle }}</td>
-                    <td>
-                        {% if periode.statut == "soumis" %}
-                            <span class="badge bg-success">Soumis</span>
-                        {% else %}
-                            <span class="badge bg-secondary">Brouillon</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ periode.soumis_par|default:"—" }}</td>
-                    <td class="text-end">
-                        <a href="{% url 'spe_report:period_detail' periode.mois_id %}" class="btn btn-sm btn-outline-primary">Ouvrir</a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="4" class="text-muted">Aucune période créée pour l'instant.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<div class="row row-cols-1 row-cols-md-3 g-3 mb-4">
+    <div class="col">
+        <div class="sona-card sona-stat-card sona-card-body">
+            <div class="sona-stat-value">{{ total_count }}</div>
+            <div class="sona-stat-label">Périodes créées</div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h2 class="h5 card-title">Nouvelle saisie</h2>
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label class="form-label">{{ form.numero.label }}</label>
-                        {{ form.numero }}
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">{{ form.annee.label }}</label>
-                        {{ form.annee }}
-                        {% for error in form.annee.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
-                    </div>
-                    {% for error in form.non_field_errors %}<div class="text-danger small mb-2">{{ error }}</div>{% endfor %}
-                    <button type="submit" class="btn btn-primary">Créer la période</button>
-                </form>
+    <div class="col">
+        <div class="sona-card sona-stat-card sona-card-body">
+            <div class="sona-stat-value">{{ brouillon_count }}</div>
+            <div class="sona-stat-label">En brouillon</div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="sona-card sona-stat-card sona-card-body">
+            <div class="sona-stat-value">{{ soumis_count }}</div>
+            <div class="sona-stat-label">Soumises</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="sona-card">
+            <div class="sona-table-wrap" style="border:none;">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Période</th>
+                            <th>Statut</th>
+                            <th>Soumis par</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for periode in periodes %}
+                        <tr>
+                            <td class="fw-semibold">{{ periode.mois.libelle }}</td>
+                            <td>
+                                {% if periode.statut == "soumis" %}
+                                    <span class="sona-badge sona-badge-submitted">Soumis</span>
+                                {% else %}
+                                    <span class="sona-badge sona-badge-draft">Brouillon</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted">{{ periode.soumis_par|default:"—" }}</td>
+                            <td class="text-end">
+                                <a href="{% url 'spe_report:period_detail' periode.mois_id %}" class="btn btn-sm btn-outline-primary">Ouvrir</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="sona-empty">Aucune période créée pour l'instant.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="sona-card sona-card-body">
+            <div class="sona-icon-tile">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+            </div>
+            <h2 class="h6">Nouvelle saisie</h2>
+            <p class="text-muted small">Créer une nouvelle période de reporting mensuel.</p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">{{ form.numero.label }}</label>
+                    {{ form.numero }}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">{{ form.annee.label }}</label>
+                    {{ form.annee }}
+                    {% for error in form.annee.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                </div>
+                {% for error in form.non_field_errors %}<div class="text-danger small mb-2">{{ error }}</div>{% endfor %}
+                <button type="submit" class="btn btn-primary w-100">Créer la période</button>
+            </form>
         </div>
     </div>
 </div>

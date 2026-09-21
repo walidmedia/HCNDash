@@ -1,20 +1,28 @@
 {% extends "base.html" %}
 {% load archive_extras %}
 
-{% block title %}Delete row{% endblock %}
+{% block title %}Supprimer la ligne{% endblock %}
 
 {% block content %}
-<h1 class="h3 mb-3">Delete row?</h1>
-<p>This will permanently delete this row from <strong>{{ dataset.name }}</strong>. This cannot be undone.</p>
-<dl class="row">
-    {% for col in dataset.columns %}
-    <dt class="col-sm-3">{{ col }}</dt>
-    <dd class="col-sm-9">{{ row.data|get_item:col }}</dd>
-    {% endfor %}
-</dl>
-<form method="post">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Delete row</button>
-    <a href="{% url 'archive:dataset_detail' dataset.pk %}" class="btn btn-link">Cancel</a>
-</form>
+<div class="sona-page-header">
+    <div class="sona-eyebrow">{{ dataset.name }}</div>
+    <h1 class="h3 mb-0">Supprimer cette ligne ?</h1>
+</div>
+
+<div class="sona-card sona-card-body">
+    <p>Cette action supprimera définitivement cette ligne de <strong>{{ dataset.name }}</strong>. Cette action est irréversible.</p>
+    <dl class="row">
+        {% for col in dataset.columns %}
+        <dt class="col-sm-3">{{ col }}</dt>
+        <dd class="col-sm-9">{{ row.data|get_item:col }}</dd>
+        {% endfor %}
+    </dl>
+    <form method="post">
+        {% csrf_token %}
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-danger">Supprimer la ligne</button>
+            <a href="{% url 'archive:dataset_detail' dataset.pk %}" class="btn btn-outline-secondary">Annuler</a>
+        </div>
+    </form>
+</div>
 {% endblock %}

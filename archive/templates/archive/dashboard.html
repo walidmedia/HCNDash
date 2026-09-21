@@ -1,32 +1,35 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Archive{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Datasets</h1>
+<div class="sona-page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
     <div>
-        <a href="{% url 'archive:dataset_upload' %}" class="btn btn-primary">Upload file</a>
-        <a href="{% url 'archive:dataset_manual_new' %}" class="btn btn-outline-primary">Add manually</a>
+        <div class="sona-eyebrow">Archive</div>
+        <h1 class="h3 mb-0">Jeux de données</h1>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'archive:dataset_upload' %}" class="btn btn-primary">Importer un fichier</a>
+        <a href="{% url 'archive:dataset_manual_new' %}" class="btn btn-outline-primary">Ajouter manuellement</a>
     </div>
 </div>
 
 {% if datasets %}
-<div class="table-responsive">
-<table class="table table-striped table-hover align-middle">
+<div class="sona-table-wrap">
+<table class="table table-hover align-middle mb-0">
     <thead>
         <tr>
-            <th>Name</th>
-            <th>Created</th>
-            <th>Rows</th>
-            <th>Columns</th>
+            <th>Nom</th>
+            <th>Créé le</th>
+            <th>Lignes</th>
+            <th>Colonnes</th>
         </tr>
     </thead>
     <tbody>
         {% for dataset in datasets %}
         <tr>
-            <td><a href="{% url 'archive:dataset_detail' dataset.pk %}">{{ dataset.name }}</a></td>
-            <td>{{ dataset.created_at|date:"Y-m-d H:i" }}</td>
+            <td><a href="{% url 'archive:dataset_detail' dataset.pk %}" class="fw-semibold text-decoration-none">{{ dataset.name }}</a></td>
+            <td class="text-muted">{{ dataset.created_at|date:"Y-m-d H:i" }}</td>
             <td>{{ dataset.row_count }}</td>
             <td class="text-muted">{{ dataset.columns|join:", " }}</td>
         </tr>
@@ -35,6 +38,8 @@
 </table>
 </div>
 {% else %}
-<p class="text-muted">No datasets yet. Upload a file or add one manually to get started.</p>
+<div class="sona-card">
+    <div class="sona-empty">Aucun jeu de données pour l'instant. Importez un fichier ou ajoutez-en un manuellement.</div>
+</div>
 {% endif %}
 {% endblock %}

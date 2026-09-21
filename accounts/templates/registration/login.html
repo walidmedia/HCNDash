@@ -1,26 +1,30 @@
 {% extends "base.html" %}
 
-{% block title %}Log in{% endblock %}
+{% block title %}Connexion{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-5">
-        <h1 class="h3 mb-3">Log in</h1>
+<div class="sona-auth-shell">
+    <div class="sona-auth-card">
+        <div class="sona-auth-mark">{% include "_brand_mark.html" %}</div>
+        <h1 class="h4 text-center mb-1">Bienvenue</h1>
+        <p class="text-muted text-center mb-4">Connectez-vous pour accéder au tableau de bord SPE</p>
+
         {% if form.errors %}
-            <div class="alert alert-danger">Your username and password didn't match. Please try again.</div>
+            <div class="alert alert-danger">Identifiant ou mot de passe incorrect. Veuillez réessayer.</div>
         {% endif %}
+
         <form method="post">
             {% csrf_token %}
             <div class="mb-3">
-                <label class="form-label" for="{{ form.username.id_for_label }}">Username</label>
+                <label class="form-label" for="{{ form.username.id_for_label }}">Identifiant</label>
                 {{ form.username }}
             </div>
-            <div class="mb-3">
-                <label class="form-label" for="{{ form.password.id_for_label }}">Password</label>
+            <div class="mb-4">
+                <label class="form-label" for="{{ form.password.id_for_label }}">Mot de passe</label>
                 {{ form.password }}
             </div>
             <input type="hidden" name="next" value="{{ next }}">
-            <button type="submit" class="btn btn-primary">Log in</button>
+            <button type="submit" class="btn btn-primary w-100">Se connecter</button>
         </form>
     </div>
 </div>

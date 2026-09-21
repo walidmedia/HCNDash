@@ -3,19 +3,18 @@
 {% block title %}{{ mois.libelle }}{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
+<div class="sona-page-header d-flex justify-content-between align-items-start flex-wrap gap-3">
     <div>
-        <h1 class="h3 mb-0">{{ mois.libelle }}</h1>
-        <p class="text-muted mb-0">
-            {% if periode.statut == "soumis" %}
-                <span class="badge bg-success">Soumis</span> le {{ periode.soumis_at|date:"Y-m-d H:i" }} par {{ periode.soumis_par }}
-            {% else %}
-                <span class="badge bg-secondary">Brouillon</span>
-            {% endif %}
-        </p>
+        <div class="sona-eyebrow">Période de reporting</div>
+        <h1 class="h3 mb-2">{{ mois.libelle }}</h1>
+        {% if periode.statut == "soumis" %}
+            <span class="sona-badge sona-badge-submitted">Soumis le {{ periode.soumis_at|date:"d/m/Y H:i" }} par {{ periode.soumis_par }}</span>
+        {% else %}
+            <span class="sona-badge sona-badge-draft">Brouillon</span>
+        {% endif %}
     </div>
-    <div>
-        <a href="{% url 'spe_report:period_report' mois.id %}" class="btn btn-outline-secondary">Voir le rapport</a>
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="{% url 'spe_report:period_report' mois.id %}" class="btn btn-outline-primary">Voir le rapport</a>
         {% if periode.statut == "soumis" %}
             {% if can_reopen %}
             <form method="post" action="{% url 'spe_report:period_reopen' mois.id %}" class="d-inline">
@@ -33,35 +32,39 @@
     </div>
 </div>
 
+<div class="sona-section-heading mb-3">Sections du rapport</div>
 <div class="row row-cols-1 row-cols-md-3 g-3">
     {% for row in rapport_rows %}
     <div class="col">
-        <a class="text-decoration-none" href="{% url 'spe_report:period_section' mois.id row.rapport.code %}">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h2 class="h6 card-title">{{ row.rapport.libelle }}</h2>
-                    <p class="card-text text-muted mb-0">{{ row.filled }} / {{ row.total }} lignes saisies</p>
+        <a class="sona-card-link" href="{% url 'spe_report:period_section' mois.id row.rapport.code %}">
+            <div class="sona-card sona-card-body h-100">
+                <h2 class="h6 mb-1">{{ row.rapport.libelle }}</h2>
+                <p class="text-muted small mb-0">{{ row.filled }} / {{ row.total }} lignes saisies</p>
+                <div class="sona-progress">
+                    <div class="sona-progress-bar {% if row.total > 0 and row.filled == row.total %}is-complete{% endif %}" style="width: {% widthratio row.filled row.total 100 %}%;"></div>
                 </div>
             </div>
         </a>
     </div>
     {% endfor %}
     <div class="col">
-        <a class="text-decoration-none" href="{% url 'spe_report:period_emploi' mois.id %}">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h2 class="h6 card-title">Emploi</h2>
-                    <p class="card-text text-muted mb-0">{{ emploi_filled }} / {{ emploi_total }} catégories saisies</p>
+        <a class="sona-card-link" href="{% url 'spe_report:period_emploi' mois.id %}">
+            <div class="sona-card sona-card-body h-100">
+                <h2 class="h6 mb-1">Emploi</h2>
+                <p class="text-muted small mb-0">{{ emploi_filled }} / {{ emploi_total }} catégories saisies</p>
+                <div class="sona-progress">
+                    <div class="sona-progress-bar {% if emploi_total > 0 and emploi_filled == emploi_total %}is-complete{% endif %}" style="width: {% widthratio emploi_filled emploi_total 100 %}%;"></div>
                 </div>
             </div>
         </a>
     </div>
     <div class="col">
-        <a class="text-decoration-none" href="{% url 'spe_report:period_investissements' mois.id %}">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h2 class="h6 card-title">Investissements</h2>
-                    <p class="card-text text-muted mb-0">{{ invest_filled }} / {{ invest_total }} structures saisies</p>
+        <a class="sona-card-link" href="{% url 'spe_report:period_investissements' mois.id %}">
+            <div class="sona-card sona-card-body h-100">
+                <h2 class="h6 mb-1">Investissements</h2>
+                <p class="text-muted small mb-0">{{ invest_filled }} / {{ invest_total }} structures saisies</p>
+                <div class="sona-progress">
+                    <div class="sona-progress-bar {% if invest_total > 0 and invest_filled == invest_total %}is-complete{% endif %}" style="width: {% widthratio invest_filled invest_total 100 %}%;"></div>
                 </div>
             </div>
         </a>

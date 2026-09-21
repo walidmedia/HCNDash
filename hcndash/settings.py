@@ -118,6 +118,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
+
+
+# django.contrib.messages tags its ERROR level "error" by default; map it to
+# Bootstrap's "danger" so messages.error(...) renders with alert-danger.
+from django.contrib.messages import constants as message_constants
+
+MESSAGE_TAGS = {
+    message_constants.ERROR: 'danger',
+}
 
 
 # Authentication
