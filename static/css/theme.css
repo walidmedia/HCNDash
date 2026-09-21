@@ -1,41 +1,49 @@
 /* ==========================================================================
-   HCN Dash — Sonatrach-inspired design system
+   HCN Dash — Sonatrach brand design system
+   Brand orange (#FF8500) sampled directly from the official logo; dark
+   charcoal header tone and card-based layout inspired by sonatrach.com.
    ========================================================================== */
 
 :root {
-  /* Brand: deep energy green + amber accent (flame/hydrocarbon motif) */
-  --sona-green-900: #05231a;
-  --sona-green-800: #0a3d2c;
-  --sona-green-700: #0f5238;
+  --sona-orange-700: #cc5f00;
+  --sona-orange-600: #e56f00;
+  --sona-orange-500: #ff8500; /* exact brand orange */
+  --sona-orange-400: #ff9d33;
+  --sona-orange-100: #ffe8cc;
+  --sona-orange-50:  #fff6ec;
+
+  --sona-dark-900: #12151a;
+  --sona-dark-800: #1b2028;
+  --sona-dark-700: #262d38;
+
   --sona-green-600: #157048;
   --sona-green-500: #1c8f57;
-  --sona-green-400: #2fae70;
   --sona-green-100: #e3f5eb;
   --sona-green-50:  #f2faf5;
 
-  --sona-amber-600: #d98a0e;
-  --sona-amber-500: #f2a01c;
-  --sona-amber-100: #fdf0d9;
+  --sona-gold-600: #b8860b;
+  --sona-gold-500: #d99e1f;
+  --sona-gold-100: #faf0d8;
 
   --sona-red-600: #b3261e;
 
-  --ink-900: #14201b;
-  --ink-700: #3c4a44;
-  --ink-500: #647169;
-  --ink-300: #a4b0a9;
+  --ink-900: #14171a;
+  --ink-700: #3c434a;
+  --ink-500: #666f78;
+  --ink-300: #a7aeb5;
 
   --surface: #ffffff;
-  --surface-muted: #f5f8f6;
-  --surface-sunken: #eef3f0;
-  --border-soft: #e1e8e3;
+  --surface-muted: #f6f7f8;
+  --surface-sunken: #eef0f2;
+  --border-soft: #e2e5e9;
 
   --radius-lg: 18px;
   --radius-md: 12px;
   --radius-sm: 8px;
 
-  --shadow-sm: 0 1px 2px rgba(10, 30, 20, 0.06);
-  --shadow-md: 0 6px 20px rgba(10, 30, 20, 0.08);
-  --shadow-lg: 0 16px 40px rgba(10, 30, 20, 0.12);
+  --shadow-sm: 0 1px 2px rgba(18, 21, 26, 0.06);
+  --shadow-md: 0 6px 20px rgba(18, 21, 26, 0.10);
+  --shadow-lg: 0 20px 48px rgba(18, 21, 26, 0.28);
 
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
@@ -54,10 +62,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 a {
-  color: var(--sona-green-700);
+  color: var(--sona-orange-600);
 }
 a:hover {
-  color: var(--sona-green-800);
+  color: var(--sona-orange-700);
 }
 
 .text-muted {
@@ -67,10 +75,11 @@ a:hover {
 /* ------------------------------ Navbar ------------------------------ */
 
 .sona-navbar {
-  background: linear-gradient(120deg, var(--sona-green-800) 0%, var(--sona-green-700) 55%, var(--sona-green-600) 100%);
-  box-shadow: 0 2px 16px rgba(5, 35, 26, 0.25);
-  padding-top: .65rem;
-  padding-bottom: .65rem;
+  background: linear-gradient(120deg, var(--sona-dark-900) 0%, var(--sona-dark-800) 60%, var(--sona-dark-700) 100%);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.25);
+  padding-top: .6rem;
+  padding-bottom: .6rem;
+  border-bottom: 2px solid var(--sona-orange-500);
 }
 
 .sona-brand {
@@ -81,20 +90,22 @@ a:hover {
 }
 
 .sona-brand-mark {
-  width: 38px;
-  height: 38px;
-  border-radius: 11px;
-  background: radial-gradient(circle at 30% 25%, var(--sona-amber-500), var(--sona-amber-600) 70%);
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.25);
+  padding: 5px;
   flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
 }
 
-.sona-brand-mark svg {
-  width: 22px;
-  height: 22px;
+.sona-brand-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .sona-brand-text {
@@ -109,14 +120,15 @@ a:hover {
 }
 
 .sona-brand-text .sona-brand-sub {
-  color: rgba(255, 255, 255, 0.65);
+  color: var(--sona-orange-400);
   font-size: .72rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .08em;
 }
 
 .sona-nav-link {
-  color: rgba(255, 255, 255, 0.82) !important;
+  color: rgba(255, 255, 255, 0.78) !important;
   font-weight: 600;
   font-size: .9rem;
   padding: .4rem .85rem !important;
@@ -126,12 +138,12 @@ a:hover {
 
 .sona-nav-link:hover {
   color: #fff !important;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .sona-nav-link.active {
-  color: var(--sona-green-800) !important;
-  background: var(--sona-amber-500);
+  color: var(--sona-dark-900) !important;
+  background: var(--sona-orange-500);
 }
 
 .sona-user-chip {
@@ -146,23 +158,23 @@ a:hover {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.18);
-  color: #fff;
+  background: var(--sona-orange-500);
+  color: var(--sona-dark-900);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
+  font-weight: 800;
   font-size: .75rem;
   text-transform: uppercase;
 }
 
 .btn-logout {
-  border-color: rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.35);
   color: #fff;
 }
 .btn-logout:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.55);
   color: #fff;
 }
 
@@ -178,7 +190,7 @@ a:hover {
 }
 
 .sona-eyebrow {
-  color: var(--sona-green-600);
+  color: var(--sona-orange-600);
   font-weight: 700;
   font-size: .75rem;
   text-transform: uppercase;
@@ -193,7 +205,7 @@ a:hover {
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
-  transition: box-shadow .18s ease, transform .18s ease;
+  transition: box-shadow .18s ease, transform .18s ease, border-color .18s ease;
 }
 
 a.sona-card-link {
@@ -205,7 +217,7 @@ a.sona-card-link {
 a.sona-card-link:hover .sona-card {
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
-  border-color: var(--sona-green-400);
+  border-color: var(--sona-orange-400);
 }
 
 .sona-card-body {
@@ -215,7 +227,7 @@ a.sona-card-link:hover .sona-card {
 .sona-stat-card .sona-stat-value {
   font-size: 1.9rem;
   font-weight: 800;
-  color: var(--sona-green-700);
+  color: var(--sona-orange-600);
   line-height: 1;
 }
 
@@ -232,8 +244,8 @@ a.sona-card-link:hover .sona-card {
   width: 44px;
   height: 44px;
   border-radius: var(--radius-sm);
-  background: var(--sona-green-100);
-  color: var(--sona-green-700);
+  background: var(--sona-orange-100);
+  color: var(--sona-orange-600);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -252,12 +264,12 @@ a.sona-card-link:hover .sona-card {
 
 .sona-progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, var(--sona-green-500), var(--sona-green-400));
+  background: linear-gradient(90deg, var(--sona-orange-600), var(--sona-orange-400));
   border-radius: 999px;
 }
 
 .sona-progress-bar.is-complete {
-  background: linear-gradient(90deg, var(--sona-amber-600), var(--sona-amber-500));
+  background: linear-gradient(90deg, var(--sona-green-600), var(--sona-green-500));
 }
 
 /* ------------------------------ Badges ------------------------------ */
@@ -289,7 +301,7 @@ a.sona-card-link:hover .sona-card {
 
 .sona-badge-submitted {
   background: var(--sona-green-100);
-  color: var(--sona-green-700);
+  color: var(--sona-green-600);
 }
 
 /* ------------------------------ Buttons ------------------------------ */
@@ -305,21 +317,24 @@ a.sona-card-link:hover .sona-card {
 }
 
 .btn-primary {
-  background: var(--sona-green-600);
-  border-color: var(--sona-green-600);
+  background: var(--sona-orange-500);
+  border-color: var(--sona-orange-500);
+  color: #fff;
 }
 .btn-primary:hover, .btn-primary:focus {
-  background: var(--sona-green-700);
-  border-color: var(--sona-green-700);
+  background: var(--sona-orange-600);
+  border-color: var(--sona-orange-600);
+  color: #fff;
 }
 
 .btn-outline-primary {
-  color: var(--sona-green-700);
-  border-color: var(--sona-green-600);
+  color: var(--sona-orange-600);
+  border-color: var(--sona-orange-500);
 }
 .btn-outline-primary:hover {
-  background: var(--sona-green-600);
-  border-color: var(--sona-green-600);
+  background: var(--sona-orange-500);
+  border-color: var(--sona-orange-500);
+  color: #fff;
 }
 
 .btn-outline-secondary {
@@ -337,19 +352,19 @@ a.sona-card-link:hover .sona-card {
   border-color: var(--sona-green-600);
 }
 .btn-success:hover {
-  background: var(--sona-green-700);
-  border-color: var(--sona-green-700);
+  background: #0f5c3b;
+  border-color: #0f5c3b;
 }
 
 .btn-warning {
-  background: var(--sona-amber-500);
-  border-color: var(--sona-amber-500);
+  background: var(--sona-gold-500);
+  border-color: var(--sona-gold-500);
   color: var(--ink-900);
 }
 .btn-warning:hover {
-  background: var(--sona-amber-600);
-  border-color: var(--sona-amber-600);
-  color: var(--ink-900);
+  background: var(--sona-gold-600);
+  border-color: var(--sona-gold-600);
+  color: #fff;
 }
 
 /* ------------------------------ Forms ------------------------------ */
@@ -361,8 +376,8 @@ a.sona-card-link:hover .sona-card {
 }
 
 .form-control:focus, .form-select:focus {
-  border-color: var(--sona-green-500);
-  box-shadow: 0 0 0 .2rem var(--sona-green-100);
+  border-color: var(--sona-orange-500);
+  box-shadow: 0 0 0 .2rem var(--sona-orange-100);
 }
 
 .form-control-sm {
@@ -408,22 +423,22 @@ a.sona-card-link:hover .sona-card {
 }
 
 .table-hover > tbody > tr:hover > * {
-  background-color: var(--sona-green-50);
+  background-color: var(--sona-orange-50);
 }
 
 .table-secondary, .table-secondary > * {
-  --bs-table-bg: var(--sona-amber-100) !important;
-  background-color: var(--sona-amber-100) !important;
+  --bs-table-bg: var(--sona-gold-100) !important;
+  background-color: var(--sona-gold-100) !important;
   color: var(--ink-900);
 }
 
 .sona-section-heading {
-  color: var(--sona-green-700);
+  color: var(--sona-orange-600);
   font-weight: 700;
   font-size: .82rem;
   text-transform: uppercase;
   letter-spacing: .06em;
-  border-bottom: 2px solid var(--sona-green-100);
+  border-bottom: 2px solid var(--sona-orange-100);
   padding-bottom: .4rem;
 }
 
@@ -434,43 +449,58 @@ a.sona-card-link:hover .sona-card {
   border-left: 4px solid transparent;
   border-radius: var(--radius-sm);
 }
-.alert-success { border-left-color: var(--sona-green-500); background: var(--sona-green-50); color: var(--sona-green-800); }
-.alert-warning { border-left-color: var(--sona-amber-500); background: var(--sona-amber-100); color: #6b4a06; }
+.alert-success { border-left-color: var(--sona-green-500); background: var(--sona-green-50); color: var(--sona-green-600); }
+.alert-warning { border-left-color: var(--sona-gold-500); background: var(--sona-gold-100); color: #6b4a06; }
 .alert-danger  { border-left-color: var(--sona-red-600); background: #fdecea; color: #7a1c17; }
 .alert-info    { border-left-color: var(--ink-300); background: var(--surface-sunken); color: var(--ink-700); }
 
 /* ------------------------------ Login page ------------------------------ */
 
 .sona-auth-shell {
-  min-height: calc(100vh - 90px);
+  min-height: calc(100vh - 74px);
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
+  background-image: linear-gradient(115deg, rgba(18, 21, 26, 0.88) 0%, rgba(18, 21, 26, 0.55) 45%, rgba(18, 21, 26, 0.15) 75%), url('../img/sonatrach-siege.jpg');
+  background-size: cover;
+  background-position: center;
+  margin: -2rem calc(-50vw + 50%) -3rem;
+  padding: 4rem 6vw;
 }
 
 .sona-auth-card {
   width: 100%;
-  max-width: 420px;
-  background: var(--surface);
+  max-width: 400px;
+  background: rgba(255, 255, 255, 0.97);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   padding: 2.5rem 2.25rem;
-  border: 1px solid var(--border-soft);
+  backdrop-filter: blur(6px);
 }
 
 .sona-auth-mark {
-  width: 56px;
-  height: 56px;
-  border-radius: 16px;
-  background: radial-gradient(circle at 30% 25%, var(--sona-amber-500), var(--sona-amber-600) 70%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 88px;
   margin: 0 auto 1.25rem;
-  box-shadow: var(--shadow-md);
+  display: block;
 }
 
-.sona-auth-mark svg { width: 30px; height: 30px; }
+.sona-auth-caption {
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 420px;
+  position: absolute;
+  left: 6vw;
+  bottom: 3.5rem;
+}
+
+.sona-auth-caption .sona-eyebrow { color: var(--sona-orange-400); }
+.sona-auth-caption h2 { color: #fff; font-size: 1.6rem; }
+.sona-auth-caption p { color: rgba(255, 255, 255, 0.75); }
+
+@media (max-width: 767px) {
+  .sona-page { padding-top: 1.25rem; }
+  .sona-auth-shell { justify-content: center; padding: 2rem 5vw; }
+  .sona-auth-caption { display: none; }
+}
 
 /* ------------------------------ Misc ------------------------------ */
 
@@ -478,8 +508,4 @@ a.sona-card-link:hover .sona-card {
   text-align: center;
   padding: 3rem 1.5rem;
   color: var(--ink-500);
-}
-
-@media (max-width: 767px) {
-  .sona-page { padding-top: 1.25rem; }
 }

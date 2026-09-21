@@ -134,7 +134,7 @@ MESSAGE_TAGS = {
 # https://docs.djangoproject.com/en/6.1/topics/auth/default/
 
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'archive:dashboard'
+LOGIN_REDIRECT_URL = 'spe_report:period_list'
 LOGOUT_REDIRECT_URL = 'login'
 
 

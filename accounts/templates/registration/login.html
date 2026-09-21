@@ -1,11 +1,17 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Connexion{% endblock %}
 
 {% block content %}
 <div class="sona-auth-shell">
+    <div class="sona-auth-caption d-none d-lg-block">
+        <div class="sona-eyebrow">Siège de Sonatrach</div>
+        <h2>Rapport SPE &mdash; HCN Dash</h2>
+        <p>Suivi mensuel de la production, du transport, du raffinage et des investissements du Groupe.</p>
+    </div>
     <div class="sona-auth-card">
-        <div class="sona-auth-mark">{% include "_brand_mark.html" %}</div>
+        <img src="{% static 'img/sonatrach-logo.png' %}" alt="Sonatrach" class="sona-auth-mark">
         <h1 class="h4 text-center mb-1">Bienvenue</h1>
         <p class="text-muted text-center mb-4">Connectez-vous pour accéder au tableau de bord SPE</p>
 

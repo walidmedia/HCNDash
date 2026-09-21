@@ -15,7 +15,7 @@
 <nav class="navbar navbar-expand-lg sona-navbar">
     <div class="container">
         <a class="sona-brand" href="{% if user.is_authenticated %}{% url 'spe_report:period_list' %}{% else %}{% url 'login' %}{% endif %}">
-            <span class="sona-brand-mark">{% include "_brand_mark.html" %}</span>
+            <span class="sona-brand-mark"><img src="{% static 'img/sonatrach-mark.png' %}" alt="Sonatrach"></span>
             <span class="sona-brand-text">
                 <span class="d-block sona-brand-name">Sonatrach</span>
                 <span class="d-block sona-brand-sub">HCN Dash</span>
