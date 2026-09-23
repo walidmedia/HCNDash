@@ -16,6 +16,7 @@ from .forms import (
     build_objectifs_form,
     build_section_form,
 )
+from .oracle_export import push_period_to_oracle
 from .models import (
     Categorie,
     ChangeLog,
@@ -145,6 +146,15 @@ def period_submit(request, mois_id):
         periode.soumis_at = timezone.now()
         periode.save()
         messages.success(request, f"Période {mois} soumise et verrouillée.")
+
+        ok, detail = push_period_to_oracle(mois)
+        if ok:
+            messages.success(request, detail)
+        else:
+            messages.warning(
+                request,
+                f"Période soumise localement, mais l'export vers Oracle a échoué : {detail}",
+            )
     return redirect("spe_report:period_detail", mois_id=mois.id)
 
 

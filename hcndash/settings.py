@@ -87,18 +87,27 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     },
-    # Read-only link to the corporate Oracle server that holds the SPE
-    # source data. Not managed by Django migrations - it's queried directly
-    # via django.db.connections['oracle'] from views/management commands.
-    # Credentials come from the local .env file (see .env.example);
-    # only reachable from the Sonatrach internal network.
+    # Link to the corporate Oracle server that holds the SPE source data.
+    # Not managed by Django migrations - it's queried/written directly via
+    # django.db.connections['oracle'] from views/management commands.
+    # Credentials come from the local .env file (see .env.example); only
+    # reachable from the Sonatrach internal network.
     'oracle': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': os.environ.get('ORACLE_SPE_SERVICE', ''),
+        # PDBPROCSPE is a pluggable-database SERVICE_NAME, not a SID, so
+        # HOST/PORT can't be passed separately - Django's oracle backend
+        # builds a SID-style DSN from those. Passing a full Easy Connect
+        # string as NAME with HOST/PORT left blank makes Django use it
+        # verbatim (see django.db.backends.oracle.utils.dsn).
+        'NAME': '{host}:{port}/{service}'.format(
+            host=os.environ.get('ORACLE_SPE_HOST', ''),
+            port=os.environ.get('ORACLE_SPE_PORT', '1521'),
+            service=os.environ.get('ORACLE_SPE_SERVICE', ''),
+        ) if os.environ.get('ORACLE_SPE_HOST') else '',
         'USER': os.environ.get('ORACLE_SPE_USER', ''),
         'PASSWORD': os.environ.get('ORACLE_SPE_PASSWORD', ''),
-        'HOST': os.environ.get('ORACLE_SPE_HOST', ''),
-        'PORT': os.environ.get('ORACLE_SPE_PORT', '1521'),
+        'HOST': '',
+        'PORT': '',
     },
 }
 

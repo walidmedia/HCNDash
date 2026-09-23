@@ -1,3 +1,5 @@
+from unittest import mock
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
@@ -12,6 +14,10 @@ from .models import (
     TypeParticipation,
     UniteMesure,
 )
+
+# period_submit() calls out to the real corporate Oracle server; tests mock it
+# out so they stay fast and don't depend on that network being reachable.
+_MOCK_ORACLE_PUSH = mock.patch("spe_report.views.push_period_to_oracle", return_value=(True, "ok"))
 
 
 def _make_catalog():
@@ -104,7 +110,8 @@ class PeriodEntryTests(TestCase):
 
         self.assertTrue(ChangeLog.objects.filter(action=ChangeLog.ACTION_CREATE).exists())
 
-    def test_locked_period_rejects_edits(self):
+    @_MOCK_ORACLE_PUSH
+    def test_locked_period_rejects_edits(self, mock_push):
         self.client.post(
             reverse("spe_report:period_section", args=[self.mois.id, self.rapport.code]), self._post_data()
         )
@@ -122,7 +129,8 @@ class PeriodEntryTests(TestCase):
         plain = Mesure.objects.get(ligne_mesure=self.ligne_plain, mois=self.mois, type_participation=None)
         self.assertEqual(plain.valeur_realisation, 6)  # unchanged, edit was rejected
 
-    def test_reopen_requires_admin_role(self):
+    @_MOCK_ORACLE_PUSH
+    def test_reopen_requires_admin_role(self, mock_push):
         self.client.post(reverse("spe_report:period_submit", args=[self.mois.id]))
 
         resp = self.client.post(reverse("spe_report:period_reopen", args=[self.mois.id]))
@@ -179,3 +187,133 @@ class PeriodEntryTests(TestCase):
         ]:
             resp = self.client.get(reverse(f"spe_report:{name}", args=args))
             self.assertEqual(resp.status_code, 200, f"{name} failed: {resp.status_code}")
+
+    @_MOCK_ORACLE_PUSH
+    def test_submit_shows_oracle_success_message(self, mock_push):
+        mock_push.return_value = (True, "Periode exportee avec succes vers Oracle (RAPPORT_SPE).")
+        resp = self.client.post(
+            reverse("spe_report:period_submit", args=[self.mois.id]), follow=True
+        )
+        mock_push.assert_called_once_with(self.mois)
+        messages = [str(m) for m in resp.context["messages"]]
+        self.assertTrue(any("Oracle" in m for m in messages))
+
+    @_MOCK_ORACLE_PUSH
+    def test_submit_shows_oracle_failure_warning_without_blocking_submission(self, mock_push):
+        mock_push.return_value = (False, "Echec de l'import Oracle (statut=ERROR) : ORA-01400")
+        resp = self.client.post(
+            reverse("spe_report:period_submit", args=[self.mois.id]), follow=True
+        )
+        periode = PeriodeRapport.objects.get(mois=self.mois)
+        self.assertTrue(periode.est_verrouillee)  # local submission still succeeds
+        messages = [str(m) for m in resp.context["messages"]]
+        self.assertTrue(any("échoué" in m and "ORA-01400" in m for m in messages))
+
+
+class OracleExportPayloadTests(TestCase):
+    """build_staging_payload() must match the JSON shape RAPPORT_SPE.PROCESS_STAGING parses."""
+
+    def setUp(self):
+        self.rapport, self.ligne_breakdown, self.ligne_plain, self.participations = _make_catalog()
+        self.effort_propre, self.association = self.participations
+        self.mois = Mois.objects.create(numero=3, annee=2099)
+
+        Mesure.objects.create(
+            ligne_mesure=self.ligne_breakdown, mois=self.mois, type_participation=None,
+            valeur_previsionnel=20, valeur_realisation=24,
+        )
+        Mesure.objects.create(
+            ligne_mesure=self.ligne_breakdown, mois=self.mois, type_participation=self.effort_propre,
+            valeur_previsionnel=10, valeur_realisation=12,
+        )
+        Mesure.objects.create(
+            ligne_mesure=self.ligne_plain, mois=self.mois, type_participation=None,
+            valeur_previsionnel=5, valeur_realisation=6,
+        )
+
+    def test_payload_shape(self):
+        from .oracle_export import build_staging_payload
+
+        payload = build_staging_payload(self.mois)
+
+        self.assertEqual(payload["periode"], {"mois": self.mois.libelle, "annee": 2099})
+
+        sheet = payload["sheet_forages"]
+        self.assertEqual(sheet["titre"], "Forages")
+        self.assertEqual(len(sheet["data"]), 1)
+
+        section = sheet["data"][0]
+        self.assertEqual(section["title"], "Forage d'exploration")
+        produits = {p["title"]: p for p in section["produits"]}
+
+        breakdown = produits["Sismique 2D"]
+        self.assertEqual(breakdown["mesure"], "Km Profil")
+        self.assertEqual(breakdown["valeur_mesure_previsionnel"], 20.0)
+        self.assertEqual(breakdown["valeur_mesure_realisation"], 24.0)
+        type_titles = {t["title"] for t in breakdown["types"]}
+        self.assertEqual(type_titles, {"En Effort propre", "En Association / Partenariat"})
+        effort = next(t for t in breakdown["types"] if t["title"] == "En Effort propre")
+        self.assertEqual(effort["valeur_mesure_previsionnel"], 10.0)
+
+        plain = produits["Puits terminés"]
+        self.assertEqual(plain["mesure"], "Nombre")
+        self.assertEqual(plain["valeur_mesure_realisation"], 6.0)
+        self.assertNotIn("types", plain)
+
+
+class OracleExportPushTests(TestCase):
+    """push_period_to_oracle() drives STAGING_IMPORT + PROCESS_STAGING correctly.
+
+    Mocks the 'oracle' entry of django.db.connections directly (as seen by
+    oracle_export.py), rather than Django's real Oracle backend - that
+    backend's own connection/session-init plumbing was already validated by
+    hand against the DATABASES config; these tests only cover our own SQL
+    sequencing and error handling.
+    """
+
+    def setUp(self):
+        self.rapport, self.ligne_breakdown, self.ligne_plain, self.participations = _make_catalog()
+        self.mois = Mois.objects.create(numero=4, annee=2099)
+
+    def _fake_connections(self, fetch_result):
+        cursor = mock.MagicMock()
+        cursor.__enter__.return_value = cursor
+        cursor.__exit__.return_value = False
+        cursor.fetchone.return_value = fetch_result
+
+        conn = mock.MagicMock()
+        conn.cursor.return_value = cursor
+        return {"oracle": conn}, cursor, conn
+
+    def test_push_success(self):
+        connections, cursor, conn = self._fake_connections(("DONE", None))
+        with mock.patch("spe_report.oracle_export.connections", connections):
+            from spe_report.oracle_export import push_period_to_oracle
+
+            ok, message = push_period_to_oracle(self.mois)
+
+        self.assertTrue(ok)
+        self.assertIn("Oracle", message)
+        conn.close.assert_called_once()
+
+    def test_push_reports_oracle_side_error(self):
+        connections, cursor, conn = self._fake_connections(("ERROR", "ORA-01400: cannot insert NULL"))
+        with mock.patch("spe_report.oracle_export.connections", connections):
+            from spe_report.oracle_export import push_period_to_oracle
+
+            ok, message = push_period_to_oracle(self.mois)
+
+        self.assertFalse(ok)
+        self.assertIn("ORA-01400", message)
+
+    def test_push_sends_expected_statements(self):
+        connections, cursor, conn = self._fake_connections(("DONE", None))
+        with mock.patch("spe_report.oracle_export.connections", connections):
+            from spe_report.oracle_export import push_period_to_oracle
+
+            push_period_to_oracle(self.mois)
+
+        statements = [call.args[0] for call in cursor.execute.call_args_list]
+        self.assertTrue(any("INSERT INTO RAPPORT_SPE.STAGING_IMPORT" in s for s in statements))
+        self.assertTrue(any("PROCESS_STAGING" in s for s in statements))
+        self.assertTrue(any("SELECT STATUS, ERROR_MSG" in s for s in statements))
