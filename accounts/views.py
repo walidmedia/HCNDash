@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from .decorators import admin_required
 from .forms import UserCreateForm, UserRoleForm
+from .models import Profile
 
 User = get_user_model()
 
@@ -39,12 +40,18 @@ def user_edit(request, pk):
     if request.method == "POST":
         form = UserRoleForm(request.POST)
         if form.is_valid():
-            target.profile.role = form.cleaned_data["role"]
-            target.profile.save(update_fields=["role"])
-            target.is_active = form.cleaned_data["is_active"]
-            target.save(update_fields=["is_active"])
-            messages.success(request, f"Utilisateur « {target.username} » mis à jour.")
-            return redirect("accounts:user_list")
+            is_self = target.pk == request.user.pk
+            if is_self and not form.cleaned_data["is_active"]:
+                form.add_error(None, "Vous ne pouvez pas désactiver votre propre compte.")
+            elif is_self and form.cleaned_data["role"] != Profile.ROLE_ADMIN:
+                form.add_error(None, "Vous ne pouvez pas retirer votre propre rôle d'administrateur.")
+            else:
+                target.profile.role = form.cleaned_data["role"]
+                target.profile.save(update_fields=["role"])
+                target.is_active = form.cleaned_data["is_active"]
+                target.save(update_fields=["is_active"])
+                messages.success(request, f"Utilisateur « {target.username} » mis à jour.")
+                return redirect("accounts:user_list")
     else:
         form = UserRoleForm(initial={"role": target.profile.role, "is_active": target.is_active})
     return render(

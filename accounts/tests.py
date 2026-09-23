@@ -40,3 +40,23 @@ class ProfileRoleTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.moderator.profile.refresh_from_db()
         self.assertTrue(self.moderator.profile.is_admin)
+
+    def test_admin_cannot_deactivate_own_account(self):
+        self.client.login(username="admin", password="pw")
+        resp = self.client.post(
+            reverse("accounts:user_edit", args=[self.admin.pk]),
+            {"role": Profile.ROLE_ADMIN, "is_active": ""},
+        )
+        self.assertEqual(resp.status_code, 200)  # re-rendered with error, not redirected
+        self.admin.refresh_from_db()
+        self.assertTrue(self.admin.is_active)
+
+    def test_admin_cannot_demote_own_role(self):
+        self.client.login(username="admin", password="pw")
+        resp = self.client.post(
+            reverse("accounts:user_edit", args=[self.admin.pk]),
+            {"role": Profile.ROLE_MODERATOR, "is_active": "on"},
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.admin.profile.refresh_from_db()
+        self.assertTrue(self.admin.profile.is_admin)

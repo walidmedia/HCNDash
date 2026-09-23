@@ -11,6 +11,9 @@
 <div class="sona-card sona-card-body" style="max-width: 480px;">
     <form method="post" novalidate>
         {% csrf_token %}
+        {% for error in form.non_field_errors %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% endfor %}
         {% for field in form %}
         <div class="mb-3 {% if field.field.widget.input_type == 'checkbox' %}form-check{% endif %}">
             {% if field.field.widget.input_type == 'checkbox' %}
