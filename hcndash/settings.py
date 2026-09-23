@@ -10,10 +10,17 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Local secrets (e.g. Oracle credentials) live in a gitignored .env file,
+# never in this file.
+load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
@@ -79,7 +86,20 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    },
+    # Read-only link to the corporate Oracle server that holds the SPE
+    # source data. Not managed by Django migrations - it's queried directly
+    # via django.db.connections['oracle'] from views/management commands.
+    # Credentials come from the local .env file (see .env.example);
+    # only reachable from the Sonatrach internal network.
+    'oracle': {
+        'ENGINE': 'django.db.backends.oracle',
+        'NAME': os.environ.get('ORACLE_SPE_SERVICE', ''),
+        'USER': os.environ.get('ORACLE_SPE_USER', ''),
+        'PASSWORD': os.environ.get('ORACLE_SPE_PASSWORD', ''),
+        'HOST': os.environ.get('ORACLE_SPE_HOST', ''),
+        'PORT': os.environ.get('ORACLE_SPE_PORT', '1521'),
+    },
 }
 
 
